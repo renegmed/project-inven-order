@@ -12,7 +12,7 @@ run:
 
 .PHONY: tag
 tag:
-	docker tag inven-order:latest renegmedal/inven-order:1.0.1
+	docker tag inven-order:latest renegmedal/inven-order:1.0.1do
 
 .PHONY: push
 push:

@@ -1,37 +1,85 @@
-package main 
+package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
+
 	//"strconv"
 	//"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
+type Product struct {
+	Sku      string
+	Name     string
+	Quantity int
+}
 
 func main() {
-	
+
 	engine := gin.Default()
 
-	engine.GET("/ping", func(c *gin.Context){
+	engine.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
-	}) 
+	})
 
-	engine.LoadHTMLGlob("./templates/*.html") 
+	engine.LoadHTMLGlob("./templates/*.html")
 
 	engine.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title": "Ordering System",
 		})
 	})
- 
-		// the hello message endpoint with JSON response from map
+
+	engine.GET("/products", func(c *gin.Context) {
+
+		prods, err := readProducts("http://0.0.0.0:8080/api/products")
+
+		if err != nil {
+			c.String(http.StatusBadRequest, "URL data error")
+			return
+		}
+		var products []Product
+
+		//fmt.Printf("Data received:\n %s ", prods)
+
+		err = json.Unmarshal(prods, &products)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Products unmarshal error")
+			return
+		}
+
+		fmt.Printf("Products received:\n %v ", products)
+
+		params := map[string]interface{}{
+			"products": products,
+		}
+
+		c.HTML(http.StatusOK, "index.html", params)
+
+	})
+
+	// the hello message endpoint with JSON response from map
 	engine.GET("/hello", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Hello Gin Framework."})
 	})
 
-
 	engine.Run(port())
+}
+
+func readProducts(url string) ([]byte, error) {
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return ioutil.ReadAll(resp.Body)
 }
 
 func port() string {
