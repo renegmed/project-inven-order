@@ -37,10 +37,11 @@ func main() {
 
 	engine.GET("/products", func(c *gin.Context) {
 
-		prods, err := readProducts("http://0.0.0.0:8080/api/products")
+		prods, err := readProducts("http://127.0.0.1:8080/api/products")
 
 		if err != nil {
-			c.String(http.StatusBadRequest, "URL data error")
+
+			c.String(http.StatusBadRequest, fmt.Sprintf("URL data error - %v", err))
 			return
 		}
 		var products []Product
