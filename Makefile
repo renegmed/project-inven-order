@@ -8,7 +8,7 @@ docker:
 
 .PHONY: run  
 run:
-	docker run --name inven-order  --net host -d -p 8282:8282 inven-order
+	docker run --name inven-order  --net host -d -p 8282:8282 -e STORE_HOST='127.0.0.1' -e STORE_PORT='8080' inven-order
 
 .PHONY: tag
 tag:
